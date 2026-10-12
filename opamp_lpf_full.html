@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Active Low Pass Filter using Op-Amp - Analog Electronics</title>
+<style>
+:root{--bg:#f6f8fa;--p:#fff;--ink:#14213d;--mu:#52607a;--ln:#d5dce6;--ac:#0b6e8a;--hot:#c2410c;--soft:#e4f1f5}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:60px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.65 Charter,Georgia,serif}
+h1,h2,h3,nav,table,label,button,.rd{font-family:"Segoe UI",system-ui,sans-serif}
+header{background:var(--ink);color:#fff;padding:40px 20px 32px}.w{max-width:980px;margin:0 auto}
+header small{color:#9fd3e3;font:.9rem "Segoe UI",sans-serif}header h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15;margin:8px 0 12px}
+header p{max-width:66ch;color:#d9e3f0;margin:0}
+nav{position:sticky;top:0;background:var(--p);border-bottom:1px solid var(--ln);z-index:5}
+nav .w{display:flex;overflow-x:auto;padding:0 10px}nav a{padding:13px 11px;color:var(--mu);text-decoration:none;font-size:.88rem;white-space:nowrap;border-bottom:3px solid transparent}
+nav a:hover,nav a:focus-visible{color:var(--ac);border-color:var(--ac);outline:0}
+main{padding:0 20px 50px}section{padding:30px 0 6px}
+h2{font-size:1.5rem;margin:0 0 12px;padding-bottom:7px;border-bottom:2px solid var(--ln)}h3{font-size:1.05rem;margin:20px 0 6px;color:var(--ac)}
+p,ul,ol{max-width:74ch}li{margin:4px 0}
+.eq{background:var(--soft);border-left:4px solid var(--ac);padding:10px 14px;margin:12px 0;font:1.05rem/1.9 "Cambria Math",Cambria,Georgia,serif;overflow-x:auto}
+.box{background:var(--p);border:1px solid var(--ln);border-radius:6px;padding:16px 18px;margin:14px 0}
+.note{border-left:4px solid var(--hot);background:#fff4ec;padding:9px 13px;margin:14px 0;max-width:74ch}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;background:var(--p);font-size:.93rem}
+th,td{border:1px solid var(--ln);padding:8px 11px;text-align:left;vertical-align:top}th{background:var(--ink);color:#fff}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.lab{display:grid;grid-template-columns:minmax(210px,290px) 1fr;gap:18px;align-items:start}@media(max-width:760px){.lab{grid-template-columns:1fr}}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;margin-top:11px;color:var(--mu)}.ctl b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.rd{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px;font-size:.85rem}.rd div{background:var(--soft);padding:7px 9px;border-radius:4px}.rd b{display:block;font-size:1rem}
+svg{width:100%;height:auto;background:var(--p);border:1px solid var(--ln);border-radius:6px;margin-bottom:10px}svg text{font:11px "Segoe UI",sans-serif;fill:var(--mu)}
+.o{display:block;padding:3px 0;font-size:.95rem;cursor:pointer}.q{border-bottom:1px solid var(--ln);padding:8px 0}.ex{background:var(--soft);padding:6px 10px;border-radius:4px;font-size:.92rem}
+.ok{color:#15803d}.bad{color:#b91c1c}
+button{background:var(--ac);color:#fff;border:0;border-radius:4px;padding:8px 16px;font-size:.92rem;cursor:pointer;margin:10px 6px 0 0}button.g{background:#64748b}
+details{background:var(--p);border:1px solid var(--ln);border-radius:6px;padding:9px 14px;margin:8px 0;max-width:74ch}summary{cursor:pointer;font:600 .95rem "Segoe UI",sans-serif}
+a:focus-visible,input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+footer{text-align:center;color:var(--mu);font:.85rem "Segoe UI",sans-serif;padding:18px}
+@media print{nav,.ctl,button{display:none}body{background:#fff;font-size:12pt}header{background:#fff;color:#000;border-bottom:2px solid #000}header p,header small{color:#000}.box,svg,table,.q{break-inside:avoid}.lab{display:block}details{display:block}details>*{display:block}}
+</style></head><body>
+<header><div class="w"><small>Analog Electronics &middot; Unit: Operational Amplifier &middot; B.E./B.Tech ECE &middot; GATE &middot; Core-company interviews</small>
+<h1>Active Low Pass Filter using an Op-Amp</h1>
+<p><b>Learning objectives:</b> (1) explain how an RC network filters; (2) derive H(j&omega;), f<sub>c</sub> and roll-off; (3) design for a given gain and cutoff; (4) solve GATE-style problems; (5) answer interview questions on active filters.</p></div></header>
+<nav><div class="w"><a href="#intro">Intro</a><a href="#circuit">Circuit</a><a href="#working">Working</a><a href="#waves">Waveforms</a><a href="#math">Equations</a><a href="#solved">Solved problems</a><a href="#gate">GATE</a><a href="#interview">Interview</a><a href="#apps">Applications</a><a href="#quiz">Topic quiz</a><a href="#rev">Revision</a></div></nav>
+<main><div class="w">
+
+<section id="intro"><h2>1. Introduction and objectives</h2>
+<p><b>Definition.</b> A low pass filter (LPF) passes signals below a cutoff frequency <i>f<sub>c</sub></i> and attenuates those above it. An <b>active</b> LPF combines an R-C network with an op-amp, so it can also provide gain and drive a load.</p>
+<p><b>Principle.</b> Capacitor reactance X<sub>C</sub> = 1/(2&pi;fC) falls as frequency rises. In the inverting LPF the capacitor is in parallel with R<sub>f</sub>, so at high frequency the feedback impedance drops and the gain drops with it.</p>
+<p><b>Why it matters.</b> LPFs give anti-aliasing before ADCs, noise reduction on sensor signals, DAC output smoothing and baseband selection in receivers. A passive RC filter changes with load and cannot amplify; the op-amp removes both limits.</p>
+<h3>Prerequisites</h3><p>Ideal op-amp and virtual short, inverting amplifier, capacitor impedance 1/(j&omega;C), transfer function, decibels, Bode plot, passive RC filter.</p>
+<h3>Terminology</h3><div class="tw"><table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Passband / stopband</td><td>Frequencies passed (0 to f<sub>c</sub>) / strongly attenuated (well above f<sub>c</sub>).</td></tr>
+<tr><td>Cutoff f<sub>c</sub></td><td>Frequency where gain is 0.707 of the passband gain (&minus;3 dB).</td></tr>
+<tr><td>Roll-off</td><td>Attenuation slope beyond f<sub>c</sub>: &minus;20 dB/decade per order.</td></tr>
+<tr><td>Order</td><td>Number of reactive elements setting the response (first order = one capacitor).</td></tr>
+<tr><td>A<sub>0</sub></td><td>Passband (DC) gain.</td></tr>
+<tr><td>&tau; = R<sub>f</sub>C<sub>f</sub></td><td>Time constant; f<sub>c</sub> = 1/(2&pi;&tau;).</td></tr>
+<tr><td>GBW, SR</td><td>Op-amp gain-bandwidth product and slew rate (LM741: about 1 MHz, 0.5 V/&micro;s).</td></tr></table></div>
+<h3>Classification</h3><ul><li>By element type: passive (RC) or active (op-amp).</li><li>By configuration: inverting or non-inverting.</li><li>By order: first, second (Sallen-Key, MFB), higher.</li><li>By response: Butterworth (flat), Chebyshev (ripple, sharper), Bessel (linear phase).</li></ul></section>
+
+<section id="circuit"><h2>2. Circuit diagram</h2>
+<svg viewBox="0 0 520 230" role="img" aria-label="Inverting active low pass filter circuit">
+<g stroke="#14213d" stroke-width="2" fill="none"><path d="M20 110H60M110 110H230"/><rect x="60" y="98" width="50" height="24"/>
+<path d="M180 110V30H400V130M180 70H285M295 70H400"/><rect x="250" y="18" width="60" height="24" fill="#fff"/><path d="M285 58V82M295 58V82" stroke="#0b6e8a"/>
+<path d="M230 85V175L350 130Z"/><path d="M350 130H480"/><path d="M230 150H200V190M185 190H215M191 197H209"/></g>
+<circle cx="180" cy="110" r="3" fill="#14213d"/><circle cx="400" cy="130" r="3" fill="#14213d"/>
+<text x="20" y="100">Vin</text><text x="76" y="94">R1</text><text x="272" y="14">Rf</text><text x="270" y="102" style="fill:#0b6e8a">Cf</text><text x="236" y="114">&minus;</text><text x="236" y="154">+</text><text x="440" y="120">Vo</text><text x="225" y="212">pin 3 to GND</text><text x="330" y="212">Supplies &plusmn;15 V</text></svg>
+<p style="font-size:.88rem;color:var(--mu)">Fig. 1 Inverting first-order LPF (schematic sketch): R<sub>1</sub> in series with the input; R<sub>f</sub> in parallel with C<sub>f</sub> in the feedback path; non-inverting input grounded.</p>
+<div class="tw"><table><tr><th>Component</th><th>Function</th></tr>
+<tr><td>R<sub>1</sub></td><td>Sets input impedance and, with R<sub>f</sub>, passband gain.</td></tr>
+<tr><td>R<sub>f</sub></td><td>Sets DC gain and, with C<sub>f</sub>, the cutoff.</td></tr>
+<tr><td>C<sub>f</sub></td><td>Shunts R<sub>f</sub> at high frequency, reducing gain.</td></tr>
+<tr><td>Op-amp (LM741)</td><td>Provides gain and low output impedance; virtual short at the inputs.</td></tr>
+<tr><td>&plusmn;V<sub>CC</sub></td><td>Supplies; output limited to about &plusmn;13 V.</td></tr></table></div></section>
+
+<section id="working"><h2>3. Working principle</h2>
+<ol><li>The input current V<sub>in</sub>/R<sub>1</sub> flows into the virtual-ground node (zero current enters the op-amp).</li>
+<li>That current must pass through Z<sub>f</sub> = R<sub>f</sub> || 1/(j&omega;C<sub>f</sub>), so V<sub>o</sub> = &minus;V<sub>in</sub>Z<sub>f</sub>/R<sub>1</sub>.</li>
+<li>At low frequency C<sub>f</sub> is open, Z<sub>f</sub> &asymp; R<sub>f</sub> and gain = &minus;R<sub>f</sub>/R<sub>1</sub>.</li>
+<li>At high frequency C<sub>f</sub> shorts R<sub>f</sub>, |Z<sub>f</sub>| falls as 1/f and gain falls at &minus;20 dB/decade.</li></ol>
+<h3>Assumptions</h3><p>Ideal op-amp with GBW much larger than f<sub>c</sub> &times; gain, linear region (no clipping), no load effect.</p>
+<h3>Advantages</h3><ul><li>Gain and cutoff set independently</li><li>Load-independent output</li><li>No inductors needed</li></ul>
+<h3>Limitations</h3><ul><li>Needs power supply</li><li>Bandwidth limited by GBW and slew rate</li><li>First order gives only &minus;20 dB/decade</li><li>Inverting type inverts phase by 180&deg;</li></ul>
+<div class="note"><b>Common misconceptions.</b> (a) "Any op-amp with a sine in and a different wave out is a filter": an open-loop op-amp is a comparator and outputs a saturated square wave (about &plusmn;13 V); it has no frequency-selective element. (b) "fc is where gain is zero": it is where gain falls 3 dB. (c) "Higher C raises fc": it lowers it.</div></section>
+
+<section id="waves"><h2>4. Waveforms and simulation output</h2>
+<p><b>Simulation software:</b> Multisim. Your earlier screenshot (inverting input driven directly, no feedback) is a comparator, so it is not used here. Rebuild with R<sub>1</sub>, R<sub>f</sub> and C<sub>f</sub> as in Fig. 1, run a transient or AC sweep, and load that screenshot below. The plots below are <b>illustrative</b> and computed live from the ideal equations.</p>
+<div class="box"><label for="up" style="font-size:.9rem">Load your Multisim LPF screenshot (stays in your browser):</label> <input type="file" id="up" accept="image/*"><img id="pv" alt="Your Multisim screenshot" style="display:none;max-width:100%;margin-top:10px;border:1px solid var(--ln)"></div>
+<div class="lab box"><div class="ctl">
+<label for="r1">R<sub>1</sub> <b id="r1v"></b></label><input id="r1" type="range" min="0" max="100" value="33">
+<label for="rf">R<sub>f</sub> <b id="rfv"></b></label><input id="rf" type="range" min="0" max="100" value="33">
+<label for="cf">C<sub>f</sub> <b id="cfv"></b></label><input id="cf" type="range" min="0" max="100" value="33">
+<label for="ft">Test frequency <b id="ftv"></b></label><input id="ft" type="range" min="0" max="100" value="50">
+<div class="rd"><div>f<sub>c</sub><b id="o1"></b></div><div>Passband gain<b id="o2"></b></div><div>Gain at test f<b id="o3"></b></div><div>Extra phase lag<b id="o4"></b></div></div></div>
+<div><svg id="bode" viewBox="0 0 640 300" role="img" aria-label="Bode magnitude plot"></svg><svg id="time" viewBox="0 0 640 220" role="img" aria-label="Input and output waveforms"></svg></div></div>
+<p style="font-size:.88rem;color:var(--mu)">Fig. 2 Bode magnitude (dashed = &minus;3 dB level). Fig. 3 Input (blue, 1 V peak) and output (orange) at the test frequency; output is inverted, scaled by |H| and lagged. Default: R<sub>1</sub> = R<sub>f</sub> = 10 k&Omega;, C<sub>f</sub> = 10 nF, f<sub>c</sub> &asymp; 1.59 kHz.</p></section>
+
+<section id="math"><h2>5. Equations and derivations</h2>
+<h3>5.1 Transfer function</h3>
+<div class="eq">Z<sub>f</sub> = R<sub>f</sub>/(1 + j&omega;R<sub>f</sub>C<sub>f</sub>) &nbsp;&rArr;&nbsp; H(j&omega;) = V<sub>o</sub>/V<sub>in</sub> = &minus;Z<sub>f</sub>/R<sub>1</sub> = &minus;(R<sub>f</sub>/R<sub>1</sub>) / (1 + j&omega;/&omega;<sub>c</sub>)<br>&omega;<sub>c</sub> = 1/(R<sub>f</sub>C<sub>f</sub>), &nbsp;<i>f<sub>c</sub></i> = 1/(2&pi;R<sub>f</sub>C<sub>f</sub>)</div>
+<h3>5.2 Magnitude and phase</h3>
+<div class="eq">|H| = (R<sub>f</sub>/R<sub>1</sub>)/&radic;(1 + (f/f<sub>c</sub>)&sup2;), &nbsp;&nbsp;&phi; = 180&deg; &minus; tan<sup>&minus;1</sup>(f/f<sub>c</sub>)<br>Gain (dB) = 20 log<sub>10</sub>(R<sub>f</sub>/R<sub>1</sub>) &minus; 10 log<sub>10</sub>(1 + (f/f<sub>c</sub>)&sup2;)</div>
+<p>At f = f<sub>c</sub>: |H| = A<sub>0</sub>/&radic;2, gain &minus;3.01 dB from passband, extra lag 45&deg;. For f &gt;&gt; f<sub>c</sub>: slope &minus;20 dB/decade.</p>
+<h3>5.3 Non-inverting LPF</h3><div class="eq">A<sub>0</sub> = 1 + R<sub>f</sub>/R<sub>1</sub>, &nbsp;f<sub>c</sub> = 1/(2&pi;RC), &nbsp;H = A<sub>0</sub>/(1 + j&omega;RC)</div>
+<h3>5.3b Second order (Sallen-Key, equal R, C)</h3><div class="eq">f<sub>c</sub> = 1/(2&pi;RC), roll-off &minus;40 dB/decade; Butterworth when A<sub>0</sub> = 1.586 (Q = 0.707)</div>
+<h3>5.4 Step response and limits</h3><div class="eq">v<sub>o</sub>(t) = V<sub>final</sub>(1 &minus; e<sup>&minus;t/&tau;</sup>), &tau; = R<sub>f</sub>C<sub>f</sub>; t<sub>r</sub> (10&ndash;90%) = 2.2&tau; = 0.35/f<sub>c</sub><br>Slew-limited frequency: f<sub>max</sub> = SR/(2&pi;V<sub>p</sub>)</div></section>
+
+<section id="solved"><h2>6. Solved numerical problems</h2>
+<div class="box"><b>Problem 1 (Easy): design.</b> Design an inverting LPF with gain &minus;5 and f<sub>c</sub> = 2 kHz using R<sub>f</sub> = 10 k&Omega;.<br>R<sub>1</sub> = R<sub>f</sub>/5 = 2 k&Omega;. C<sub>f</sub> = 1/(2&pi; &times; 10 k&Omega; &times; 2 kHz) = <b>7.96 nF</b> (use 8.2 nF standard; f<sub>c</sub> becomes 1.94 kHz).</div>
+<div class="box"><b>Problem 2 (Moderate): gain and phase.</b> R<sub>1</sub> = R<sub>f</sub> = 10 k&Omega;, C<sub>f</sub> = 10 nF, f = 5 kHz.<br>f<sub>c</sub> = 1.592 kHz; f/f<sub>c</sub> = 3.14; |H| = 1/&radic;(1 + 9.87) = 0.303 = <b>&minus;10.4 dB</b>; lag = tan<sup>&minus;1</sup>(3.14) = <b>72.3&deg;</b> beyond the 180&deg; inversion (net phase 180&deg; &minus; 72.3&deg; = 107.7&deg;).</div>
+<div class="box"><b>Problem 3 (GATE-style): output amplitude.</b> R<sub>f</sub> = 100 k&Omega;, R<sub>1</sub> = 10 k&Omega;, C<sub>f</sub> = 1.59 nF, input 0.1 V peak at 10 kHz.<br>f<sub>c</sub> = 1/(2&pi; &times; 100 k &times; 1.59 n) &asymp; 1 kHz; A<sub>0</sub> = 10; |H| = 10/&radic;(1 + 100) = 0.995; V<sub>o,peak</sub> = <b>99.5 mV</b> (the passband gain of 20 dB has fallen to about 0 dB).<br><i>Shortcut:</i> well above f<sub>c</sub>, |H| &asymp; A<sub>0</sub>f<sub>c</sub>/f = 10 &times; 1 k/10 k = 1.</div></section>
+
+<section id="gate"><h2>7. GATE preparation</h2><p>Five original GATE-style questions. Select answers, then press Check answers.</p><div class="box" id="gq"></div></section>
+
+<section id="interview"><h2>8. Core-company interview preparation</h2>
+<details><summary>Why use an active LPF instead of a passive RC?</summary><p>It does not change with load (low output impedance), can provide gain and buffers the source.</p></details>
+<details><summary>How do you pick R and C for a target f<sub>c</sub>?</summary><p>Choose R from 1 k&Omega; to 100 k&Omega; (noise and loading), compute C = 1/(2&pi;Rf<sub>c</sub>), then use standard values and check tolerance (E24 resistors, 5% or better capacitors such as C0G/film).</p></details>
+<details><summary>Why does a first-order filter give &minus;20 dB/decade?</summary><p>Beyond f<sub>c</sub> |H| &prop; 1/f. A 10&times; rise in f gives 1/10 the gain, which is &minus;20 dB.</p></details>
+<details><summary>What limits the filter at high frequency?</summary><p>Op-amp GBW and slew rate; the closed-loop gain at high frequency also rises toward the noise gain, and parasitics create a stopband floor.</p></details>
+<details><summary>When would you pick Butterworth over Chebyshev or Bessel?</summary><p>Butterworth for the flattest passband; Chebyshev for a sharper transition with passband ripple; Bessel for linear phase and minimal pulse overshoot.</p></details>
+<details><summary>Output of an open-loop op-amp looks like a square wave. What is it?</summary><p>A comparator. No feedback means huge gain, so the output saturates at the rails with a sign set by V<sub>+</sub> &minus; V<sub>&minus;</sub>.</p></details>
+<div class="box"><b>Industry perspective.</b> Engineers choose the filter order and type from the required stopband attenuation, simulate in SPICE (Multisim, LTspice), then verify on the bench with a network analyzer or function generator plus scope, checking component tolerance and op-amp noise.</div></section>
+
+<section id="apps"><h2>9. Applications and industry relevance</h2><div class="tw"><table>
+<tr><th>Application</th><th>Role of the LPF</th></tr>
+<tr><td>ADC anti-aliasing</td><td>Removes content above f<sub>s</sub>/2 before sampling.</td></tr>
+<tr><td>Audio systems</td><td>Subwoofer feed, tone control, removing hiss.</td></tr>
+<tr><td>Biomedical (ECG/EEG)</td><td>Rejects high-frequency noise and mains pickup harmonics.</td></tr>
+<tr><td>DAC reconstruction</td><td>Smooths the stair-step output.</td></tr>
+<tr><td>PWM to DC conversion</td><td>Averages a PWM waveform into an analog level.</td></tr>
+<tr><td>Communications</td><td>Baseband selection after mixing or demodulation.</td></tr></table></div>
+<p><b>Design considerations:</b> component tolerance, op-amp GBW and noise, supply decoupling. <b>Testing challenges:</b> probe loading, noise floor, op-amp saturation at large inputs. <b>Roles:</b> analog design, signal-chain, test and validation, biomedical electronics, audio hardware.</p></section>
+
+<section id="quiz"><h2>10. Topic quiz (5 questions)</h2><div class="box" id="tq"></div></section>
+
+<section id="rev"><h2>11. Revision materials</h2>
+<h3>Formula sheet</h3><div class="tw"><table><tr><th>Quantity</th><th>Inverting</th><th>Non-inverting</th></tr>
+<tr><td>Passband gain</td><td>&minus;R<sub>f</sub>/R<sub>1</sub></td><td>1 + R<sub>f</sub>/R<sub>1</sub></td></tr>
+<tr><td>f<sub>c</sub></td><td>1/(2&pi;R<sub>f</sub>C<sub>f</sub>)</td><td>1/(2&pi;RC)</td></tr>
+<tr><td>|H|</td><td>A<sub>0</sub>/&radic;(1 + (f/f<sub>c</sub>)&sup2;)</td><td>same</td></tr>
+<tr><td>Roll-off</td><td>&minus;20 dB/dec per order</td><td>same</td></tr>
+<tr><td>Input impedance</td><td>&asymp; R<sub>1</sub></td><td>Very high</td></tr></table></div>
+<h3>Comparison with related filters</h3><div class="tw"><table><tr><th>Filter</th><th>Passes</th><th>Capacitor position (inverting form)</th></tr>
+<tr><td>Low pass</td><td>f &lt; f<sub>c</sub></td><td>Parallel with R<sub>f</sub></td></tr>
+<tr><td>High pass</td><td>f &gt; f<sub>c</sub></td><td>Series with R<sub>1</sub></td></tr>
+<tr><td>Band pass</td><td>f<sub>L</sub> &lt; f &lt; f<sub>H</sub></td><td>LPF and HPF in cascade</td></tr></table></div>
+<h3>High-priority GATE points</h3><ul><li>f<sub>c</sub> gives &minus;3 dB and 45&deg; for the RC term</li><li>10&times; f<sub>c</sub> gives about &minus;20 dB below passband</li><li>Inverting adds 180&deg;; gain magnitude R<sub>f</sub>/R<sub>1</sub></li><li>Order n gives &minus;20n dB/decade</li></ul>
+<h3>Common errors and troubleshooting</h3><ul><li>Output clipped: input times gain exceeds rails; reduce gain.</li><li>Wrong f<sub>c</sub>: used R<sub>1</sub> instead of R<sub>f</sub> in the inverting formula.</li><li>No filtering: C open or wrong position.</li></ul>
+<p><b>Memory aid:</b> "Low pass: cap in feedback, high frequencies shorted away." <b>Interview must-knows:</b> f<sub>c</sub> formula, roll-off, active vs passive, comparator vs filter.</p></section>
+</div></main><footer>Analog Electronics &middot; Operational Amplifier &middot; Low pass filter</footer>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function map(v,a,b){return a*Math.pow(b/a,v/100)}
+function fmt(x,u){var p=[[1e6,'M'],[1e3,'k'],[1,''],[1e-3,'m'],[1e-6,'&micro;'],[1e-9,'n']];for(var i=0;i<p.length;i++)if(x>=p[i][0]*0.9995)return (+(x/p[i][0]).toPrecision(3))+' '+p[i][1]+u;return x+' '+u}
+var NS='http://www.w3.org/2000/svg';
+function el(t,a,x){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e}
+function clr(s){while(s.firstChild)s.removeChild(s.firstChild)}
+function draw(){
+var r1=map(+$('r1').value,1e3,1e5),rf=map(+$('rf').value,1e3,1e5),cf=map(+$('cf').value,1e-9,1e-6),ft=map(+$('ft').value,10,1e5);
+var fc=1/(2*Math.PI*rf*cf),a0=rf/r1,a0db=20*Math.log10(a0);
+var g=function(f){return a0db-10*Math.log10(1+f*f/(fc*fc))};
+var gt=g(ft),ph=Math.atan(ft/fc);
+$('r1v').innerHTML=fmt(r1,'&Omega;');$('rfv').innerHTML=fmt(rf,'&Omega;');$('cfv').innerHTML=fmt(cf,'F');$('ftv').innerHTML=fmt(ft,'Hz');
+$('o1').innerHTML=fmt(fc,'Hz');$('o2').innerHTML=a0.toFixed(2)+' ('+a0db.toFixed(1)+' dB)';$('o3').innerHTML=gt.toFixed(1)+' dB';$('o4').innerHTML='&minus;'+(ph*180/Math.PI).toFixed(1)+'&deg;';
+var s=$('bode');clr(s);var W=640,H=300,L=52,R=16,T=14,B=38,gm=-40,gM=40;
+var X=function(f){return L+(Math.log10(f)-1)/4*(W-L-R)},Y=function(v){return T+(gM-Math.max(gm,Math.min(gM,v)))/(gM-gm)*(H-T-B)};
+for(var d=1;d<=5;d++){s.appendChild(el('line',{x1:X(Math.pow(10,d)),x2:X(Math.pow(10,d)),y1:T,y2:H-B,stroke:'#c3ccd9'}));s.appendChild(el('text',{x:X(Math.pow(10,d)),y:H-B+15,'text-anchor':'middle'},fmt(Math.pow(10,d),'Hz')))}
+for(var G=gm;G<=gM;G+=20){s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(G),y2:Y(G),stroke:G?'#d5dce6':'#8b97ab'}));s.appendChild(el('text',{x:L-6,y:Y(G)+4,'text-anchor':'end'},G+' dB'))}
+var p='';for(var i=0;i<=240;i++){var f=10*Math.pow(1e4,i/240);p+=(i?'L':'M')+X(f).toFixed(1)+' '+Y(g(f)).toFixed(1)}
+s.appendChild(el('line',{x1:L,x2:W-R,y1:Y(a0db-3.01),y2:Y(a0db-3.01),stroke:'#c2410c','stroke-dasharray':'4 4'}));
+s.appendChild(el('path',{d:p,fill:'none',stroke:'#0b6e8a','stroke-width':2.5}));
+if(fc>=10&&fc<=1e5){s.appendChild(el('circle',{cx:X(fc),cy:Y(a0db-3.01),r:5,fill:'#c2410c'}));s.appendChild(el('text',{x:X(fc)+8,y:Y(a0db-3.01)-8,style:'fill:#c2410c'},'fc, \u22123 dB'))}
+s.appendChild(el('line',{x1:X(ft),x2:X(ft),y1:T,y2:H-B,stroke:'#14213d','stroke-dasharray':'2 3'}));s.appendChild(el('circle',{cx:X(ft),cy:Y(gt),r:4,fill:'#14213d'}));
+s.appendChild(el('text',{x:W/2,y:H-5,'text-anchor':'middle'},'Frequency (log scale)'));
+var t=$('time');clr(t);var vo=a0/Math.sqrt(1+ft*ft/(fc*fc)),M=Math.max(1,vo)*1.15,w=2*Math.PI*ft,Tt=3/ft;
+var tx=function(x){return 40+x/Tt*580},ty=function(v){return 110-v/M*90};
+t.appendChild(el('line',{x1:40,x2:620,y1:110,y2:110,stroke:'#8b97ab'}));t.appendChild(el('text',{x:4,y:ty(M*.87)},'+'+(M*.87).toFixed(1)+' V'));t.appendChild(el('text',{x:4,y:ty(-M*.87)+4},'\u2212'+(M*.87).toFixed(1)+' V'));
+var a='',b='';for(var k=0;k<=300;k++){var tt=Tt*k/300;a+=(k?'L':'M')+tx(tt).toFixed(1)+' '+ty(Math.sin(w*tt)).toFixed(1);b+=(k?'L':'M')+tx(tt).toFixed(1)+' '+ty(-vo*Math.sin(w*tt-ph)).toFixed(1)}
+t.appendChild(el('path',{d:a,fill:'none',stroke:'#2563eb','stroke-width':2}));t.appendChild(el('path',{d:b,fill:'none',stroke:'#ea580c','stroke-width':2}));
+t.appendChild(el('text',{x:48,y:212},'Blue: Vin   Orange: Vo (peak '+vo.toFixed(2)+' V, inverted)   Time axis: 3 cycles'));
+if(vo*1>13)t.appendChild(el('text',{x:330,y:16,style:'fill:#b91c1c'},'Output would clip near \u00b113 V on a real LM741'))}
+['r1','rf','cf','ft'].forEach(function(i){$(i).addEventListener('input',draw)});draw();
+$('up').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$('pv').src=r.result;$('pv').style.display='block'};r.readAsDataURL(f)});
+function quiz(id,Q){var c=$(id),h='';Q.forEach(function(q,i){h+='<div class="q"><b>'+(i+1)+'.</b> '+q[0];q[1].forEach(function(o,j){h+='<label class="o"><input type="radio" name="'+id+i+'" value="'+j+'"> '+o+'</label>'});h+='<div class="ex" hidden>'+q[3]+'</div></div>'});
+c.innerHTML=h+'<button type="button" class="ck">Check answers</button><button type="button" class="g rs">Reset</button> <b class="sc" role="status"></b>';
+c.querySelector('.ck').onclick=function(){var n=0;Q.forEach(function(q,i){var s=c.querySelector('input[name="'+id+i+'"]:checked'),d=c.querySelectorAll('.q')[i],e=d.querySelector('.ex'),ok=s&&+s.value===q[2];if(ok)n++;e.hidden=false;e.className='ex '+(ok?'ok':'bad');e.innerHTML=(ok?'Correct. ':'Not quite. ')+q[3]});c.querySelector('.sc').textContent='Score: '+n+' / '+Q.length};
+c.querySelector('.rs').onclick=function(){c.querySelectorAll('input').forEach(function(x){x.checked=false});c.querySelectorAll('.ex').forEach(function(x){x.hidden=true});c.querySelector('.sc').textContent=''}}
+quiz('gq',[
+['An inverting LPF has R<sub>1</sub> = 1 k&Omega;, R<sub>f</sub> = 10 k&Omega;, C<sub>f</sub> = 0.1 &micro;F. Its cutoff frequency is',['15.9 Hz','159 Hz','1.59 kHz','15.9 kHz'],1,'f<sub>c</sub> = 1/(2&pi; &times; 10 k&Omega; &times; 0.1 &micro;F) = 159.2 Hz (R<sub>1</sub> does not affect f<sub>c</sub>).'],
+['At f = 10 f<sub>c</sub>, a first-order LPF gain is, relative to the passband,',['&minus;3 dB','&minus;10 dB','&minus;20 dB','&minus;40 dB'],2,'&minus;10 log<sub>10</sub>(1 + 100) = &minus;20.04 dB, about &minus;20 dB.'],
+['The phase of the RC term 1/(1 + j f/f<sub>c</sub>) at f = f<sub>c</sub> is',['0&deg;','&minus;45&deg;','&minus;90&deg;','&minus;180&deg;'],1,'&minus;tan<sup>&minus;1</sup>(1) = &minus;45&deg;.'],
+['The roll-off of a second-order LPF is',['&minus;20 dB/decade','&minus;40 dB/decade','&minus;60 dB/decade','&minus;12 dB/decade'],1,'&minus;20 dB/decade per order, so &minus;40 dB/decade for second order.'],
+['A non-inverting LPF has R<sub>1</sub> = 10 k&Omega;, R<sub>f</sub> = 20 k&Omega;. The passband gain in dB is',['6.0 dB','9.5 dB','12.0 dB','20 dB'],1,'A<sub>0</sub> = 1 + 20/10 = 3; 20 log<sub>10</sub>3 = 9.54 dB.']]);
+quiz('tq',[
+['At the cutoff frequency, the gain is what fraction of the passband gain?',['0.5','0.707','0.9','0'],1,'|H| = A<sub>0</sub>/&radic;2 &asymp; 0.707A<sub>0</sub> (&minus;3 dB).'],
+['Compared with a passive RC filter, an active LPF has the advantage of',['No power needed','Load-independent output and gain','Lower cost always','Infinite roll-off'],1,'The op-amp buffers the filter and can amplify.'],
+['In the inverting LPF, increasing C<sub>f</sub> will',['Raise f<sub>c</sub>','Lower f<sub>c</sub>','Not change f<sub>c</sub>','Increase DC gain'],1,'f<sub>c</sub> = 1/(2&pi;R<sub>f</sub>C<sub>f</sub>) falls as C<sub>f</sub> rises.'],
+['An op-amp with no feedback and a sine input gives a &plusmn;13 V square wave. It is acting as a',['Low pass filter','Integrator','Comparator','Buffer'],2,'Open loop, the huge gain saturates the output at the rails.'],
+['At very high frequency the capacitor in the feedback path acts like a',['Open circuit','Short circuit','Inductor','Resistor of value R<sub>f</sub>'],1,'X<sub>C</sub> &rarr; 0, so Z<sub>f</sub> &rarr; 0 and the gain falls.']]);
+})();
+</script></body></html>
